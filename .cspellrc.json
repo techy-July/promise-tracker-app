@@ -1,0 +1,28 @@
+{
+  "version": "0.2",
+  "ignorePaths": ["node_modules", ".next", "dist", "build"],
+  "words": [
+    "supabase",
+    "Supabase",
+    "SUPABASE",
+    "JWT",
+    "XSS",
+    "CSRF",
+    "HTTP",
+    "HTTPS",
+    "sameSite",
+    "httpOnly",
+    "getAll",
+    "setAll",
+    "getUser",
+    "getSession",
+    "onAuthStateChange",
+    "exchangeCodeForSession",
+    "signOut",
+    "createClient",
+    "createServerClient",
+    "createBrowserClient",
+    "Toaster",
+    "sonner"
+  ]
+}
