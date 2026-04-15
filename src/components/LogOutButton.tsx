@@ -1,25 +1,26 @@
 'use client'
 
-import { createClient } from '@/lib/supabase-client'
-import { useRouter } from 'next/navigation'
 import { LogOut } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase-client'
 
 export default function LogOutButton() {
-  const router = useRouter()
-  const supabase = createClient()
+	const router = useRouter()
+	const supabase = createClient()
 
-  const handleLogOut = async () => {
-    await supabase.auth.signOut()
-    router.push('/log-in')
-  }
+	const handleLogOut = async () => {
+		await supabase.auth.signOut()
+		router.push('/log-in')
+	}
 
-  return (
-    <button
-      onClick={handleLogOut}
-      className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors"
-    >
-      <LogOut size={18} />
-      Log Out
-    </button>
-  )
+	return (
+		<button
+			type="button"
+			onClick={handleLogOut}
+			className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors font-medium"
+		>
+			<LogOut size={18} />
+			Log Out
+		</button>
+	)
 }
