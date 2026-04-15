@@ -12,7 +12,8 @@
 		"lint:fix": "node ./scripts/check-imports.js --fix && biome check . --write",
 		"format": "biome format . --write",
 		"format:check": "biome format . --check",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"generate:types": "node ./scripts/generate-types.js"
 	},
 	"dependencies": {
 		"@supabase/auth-ui-react": "^0.4.7",
@@ -36,6 +37,7 @@
 		"@types/react-dom": "^19",
 		"eslint": "^9",
 		"eslint-config-next": "16.2.3",
+		"supabase": "^2.91.1",
 		"tailwindcss": "^4",
 		"typescript": "^5"
 	}
