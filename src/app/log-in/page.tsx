@@ -3,12 +3,14 @@
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import type { Session } from '@supabase/supabase-js'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase-client'
 
 export default function LogIn() {
 	const router = useRouter()
+	const searchParams = useSearchParams()
+	const timedOut = searchParams.get('reason') === 'timeout'
 	const supabase = createClient()
 	// Store session state - null means logged out, Session object means logged in
 	const [session, setSession] = useState<Session | null>(null)
@@ -48,6 +50,14 @@ export default function LogIn() {
 		<div className="flex items-center justify-center min-h-screen bg-zinc-50 dark:bg-black">
 			<div className="w-full max-w-md p-6 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
 				<h1 className="text-2xl font-bold mb-6 text-center text-black dark:text-white">Log In</h1>
+
+				{/* Session timeout message */}
+				{timedOut && (
+					<div className="mb-6 p-4 bg-amber-100 dark:bg-amber-900 border border-amber-300 dark:border-amber-700 rounded text-amber-800 dark:text-amber-100 text-sm">
+						<p className="font-semibold">Session Expired</p>
+						<p className="mt-1">Your session was inactive for too long. Please log in again.</p>
+					</div>
+				)}
 				<Auth
 					supabaseClient={supabase}
 					view="sign_in"

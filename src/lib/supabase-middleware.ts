@@ -2,11 +2,18 @@ import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
 
 /**
+ * Session inactivity timeout in milliseconds
+ * 30 minutes (1800000 ms) - adjust as needed
+ */
+const SESSION_TIMEOUT = 30 * 60 * 1000
+
+/**
  * Middleware for session management and route protection
  * Runs on every request to:
  * 1. Refresh expired access tokens using refresh tokens
  * 2. Protect routes by checking authentication
  * 3. Keep users logged in seamlessly
+ * 4. Enforce session inactivity timeout
  */
 export async function updateSession(request: NextRequest) {
 	// Create a response object to potentially update cookies
@@ -39,6 +46,40 @@ export async function updateSession(request: NextRequest) {
 	const {
 		data: { user },
 	} = await supabase.auth.getUser()
+
+	// Check session inactivity timeout
+	const lastActivity = request.cookies.get('last_activity')?.value
+	const now = Date.now()
+
+	if (user && lastActivity) {
+		const lastActivityTime = Number.parseInt(lastActivity, 10)
+		const timeSinceLastActivity = now - lastActivityTime
+
+		// If user has been inactive longer than SESSION_TIMEOUT, clear session
+		if (timeSinceLastActivity > SESSION_TIMEOUT) {
+			// Sign out the user
+			await supabase.auth.signOut()
+
+			// Redirect to login with timeout message
+			const loginUrl = new URL('/log-in', request.url)
+			loginUrl.searchParams.set('reason', 'timeout')
+			const response = NextResponse.redirect(loginUrl)
+
+			// Clear the last_activity cookie
+			response.cookies.delete('last_activity')
+			return { supabaseResponse: response, user: null }
+		}
+	}
+
+	// Update last activity timestamp for authenticated users
+	if (user) {
+		supabaseResponse.cookies.set('last_activity', now.toString(), {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax',
+			maxAge: SESSION_TIMEOUT / 1000, // Convert ms to seconds
+		})
+	}
 
 	// Protect /dashboard route from unauthorized access
 	const pathname = request.nextUrl.pathname
