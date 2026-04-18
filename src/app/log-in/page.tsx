@@ -4,19 +4,23 @@ import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import type { Session } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { TimeoutMessageWithSuspense } from '@/components/ui/TimeoutMessage'
 
 export default function LogIn() {
 	const router = useRouter()
+	const [_isPending, startTransition] = useTransition()
 	const supabase = createClient()
 	// Store session state - null means logged out, Session object means logged in
 	const [session, setSession] = useState<Session | null>(null)
 	const [loading, setLoading] = useState(true)
+	const [isMounted, setIsMounted] = useState(false)
 
 	// Setup session listener and check current session
 	useEffect(() => {
+		setIsMounted(true)
+
 		// Listen for auth state changes (login, logout, token refresh)
 		// Why: Automatically update UI when auth state changes (e.g., from OAuth redirect)
 		const {
@@ -39,11 +43,13 @@ export default function LogIn() {
 
 	// Redirect to dashboard if already logged in
 	useEffect(() => {
-		if (session && !loading) {
+		if (isMounted && session && !loading) {
 			// Why: No point showing login page to logged-in users
-			router.push('/dashboard')
+			startTransition(() => {
+				router.push('/dashboard')
+			})
 		}
-	}, [session, router, loading])
+	}, [session, loading, isMounted, router])
 
 	return (
 		<div className="flex items-center justify-center min-h-screen bg-zinc-50 dark:bg-black">
@@ -57,7 +63,7 @@ export default function LogIn() {
 					view="sign_in"
 					appearance={{ theme: ThemeSupa }}
 					theme="dark"
-					providers={[]}
+					providers={['google']}
 					redirectTo={`${typeof window !== 'undefined' ? window.location.origin : ''}/callback`}
 				/>
 			</div>

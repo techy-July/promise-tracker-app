@@ -4,16 +4,19 @@ import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import type { Session } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { createClient } from '@/lib/supabase-client'
 
 export default function SignUp() {
 	const router = useRouter()
+	const [_isPending, startTransition] = useTransition()
 	const supabase = createClient()
 	const [session, setSession] = useState<Session | null>(null)
 	const [loading, setLoading] = useState(true)
+	const [isMounted, setIsMounted] = useState(false)
 
 	useEffect(() => {
+		setIsMounted(true)
 		const {
 			data: { subscription },
 		} = supabase.auth.onAuthStateChange((_event, session) => {
@@ -29,10 +32,12 @@ export default function SignUp() {
 	}, [supabase.auth])
 
 	useEffect(() => {
-		if (session && !loading) {
-			router.push('/dashboard')
+		if (isMounted && session && !loading) {
+			startTransition(() => {
+				router.push('/dashboard')
+			})
 		}
-	}, [session, router, loading])
+	}, [session, loading, isMounted, router])
 
 	return (
 		<div className="flex items-center justify-center min-h-screen bg-zinc-50 dark:bg-black">
@@ -45,7 +50,7 @@ export default function SignUp() {
 					view="sign_up"
 					appearance={{ theme: ThemeSupa }}
 					theme="dark"
-					providers={['github', 'google']}
+					providers={['google']}
 					redirectTo={`${typeof window !== 'undefined' ? window.location.origin : ''}/callback`}
 				/>
 			</div>

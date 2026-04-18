@@ -12,9 +12,11 @@ import { processGmailPushNotification } from '@/features/gmail/services/gmail-wa
 export async function POST(request: NextRequest) {
 	try {
 		const pushMessage = await request.json()
+		const verificationToken = request.headers.get('x-goog-pubsub-verification-token') || undefined
 
 		// Process notification (async, don't await)
-		processGmailPushNotification(pushMessage).catch((error) => {
+		// Process in background to avoid response timeout
+		processGmailPushNotification(pushMessage, verificationToken).catch((error) => {
 			console.error('Failed to process Gmail notification:', error)
 		})
 
@@ -22,7 +24,7 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({ success: true })
 	} catch (error) {
 		// Even on parse error, return 200 to prevent retries
-		console.error('Webhook error:', error)
+		console.error('Webhook parse error:', error)
 		return NextResponse.json({ success: true })
 	}
 }
