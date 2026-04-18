@@ -170,3 +170,83 @@ export async function getItem(id: string) {
 		return { data: null, error: message }
 	}
 }
+
+/**
+ * Marks an item as done
+ * @param id - The item ID
+ * @returns Updated item or error
+ */
+export async function markItemDone(id: string) {
+	try {
+		const supabase = await createTypedServerClient()
+
+		const { data, error } = await supabase
+			.from('trackable_items')
+			.update({ status: 'done', updated_at: new Date().toISOString() })
+			.eq('id', id)
+			.select()
+			.single()
+
+		if (error) {
+			throw new Error(`Failed to mark item done: ${error.message}`)
+		}
+
+		revalidatePath('/dashboard')
+		return { data, error: null, success: true }
+	} catch (err) {
+		const message = err instanceof Error ? err.message : 'Unknown error'
+		return { data: null, error: message, success: false }
+	}
+}
+
+/**
+ * Updates the due date of an item
+ * @param id - The item ID
+ * @param dueDate - New due date (ISO string or null)
+ * @returns Updated item or error
+ */
+export async function updateItemDueDate(id: string, dueDate: string | null) {
+	try {
+		const supabase = await createTypedServerClient()
+
+		const { data, error } = await supabase
+			.from('trackable_items')
+			.update({ due_date: dueDate, updated_at: new Date().toISOString() })
+			.eq('id', id)
+			.select()
+			.single()
+
+		if (error) {
+			throw new Error(`Failed to update due date: ${error.message}`)
+		}
+
+		revalidatePath('/dashboard')
+		return { data, error: null, success: true }
+	} catch (err) {
+		const message = err instanceof Error ? err.message : 'Unknown error'
+		return { data: null, error: message, success: false }
+	}
+}
+
+/**
+ * Deletes an item with dashboard revalidation
+ * @param id - The item ID to delete
+ * @returns Success or error
+ */
+export async function deleteItemOptimized(id: string) {
+	try {
+		const supabase = await createTypedServerClient()
+
+		const { error } = await supabase.from('trackable_items').delete().eq('id', id)
+
+		if (error) {
+			throw new Error(`Failed to delete item: ${error.message}`)
+		}
+
+		revalidatePath('/dashboard')
+		return { success: true, error: null }
+	} catch (err) {
+		const message = err instanceof Error ? err.message : 'Unknown error'
+		return { success: false, error: message }
+	}
+}
