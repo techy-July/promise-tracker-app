@@ -1,18 +1,19 @@
-import type { z } from 'zod'
-import { CategorySchema } from '../models/category.model'
+import { z } from 'zod'
 
 /**
  * Validator for creating a category
- * Throws ZodError on validation failure
  */
-export const CategoryCreateSchema = CategorySchema.omit({
-	id: true,
-	user_id: true,
-	created_at: true,
-	updated_at: true,
+export const CategoryCreateSchema = z.object({
+	name: z.string().min(1, 'Category name is required'),
+	color_hex: z.string().optional(),
+	icon: z.string().optional(),
+	is_default: z.boolean().optional(),
+	keywords: z.array(z.string()).optional().default([]),
 })
 
-export function validateCategoryCreate(data: unknown): z.infer<typeof CategoryCreateSchema> {
+export type CategoryCreateInput = z.infer<typeof CategoryCreateSchema>
+
+export function validateCategoryCreate(data: unknown): CategoryCreateInput {
 	return CategoryCreateSchema.parse(data)
 }
 
@@ -21,7 +22,7 @@ export function validateCategoryCreate(data: unknown): z.infer<typeof CategoryCr
  */
 export function validateCategoryCreateSafe(data: unknown): {
 	success: boolean
-	data?: z.infer<typeof CategoryCreateSchema>
+	data?: CategoryCreateInput
 	error?: z.ZodError
 } {
 	const result = CategoryCreateSchema.safeParse(data)

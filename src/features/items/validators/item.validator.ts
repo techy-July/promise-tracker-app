@@ -1,13 +1,24 @@
-import type { z } from 'zod'
-import { TrackableItemDraftSchema } from '../models/item.model'
+import { z } from 'zod'
 
 /**
  * Validator for creating a trackable item
- * Throws ZodError on validation failure
  */
-export function validateTrackableItemDraft(
-	data: unknown
-): z.infer<typeof TrackableItemDraftSchema> {
+export const TrackableItemDraftSchema = z.object({
+	title: z.string().min(1, 'Item title is required'),
+	description: z.string().optional().default(''),
+	category_id: z.string().nullable().optional(),
+	due_date: z.string().nullable().optional(),
+	priority: z.enum(['low', 'medium', 'high']).optional().default('medium'),
+	status: z.enum(['pending', 'completed', 'archived']).optional().default('pending'),
+	source_type: z.string().optional(),
+	source_raw: z.string().optional(),
+	auto_extracted: z.boolean().optional().default(false),
+	confidence: z.number().min(0).max(1).optional(),
+})
+
+export type TrackableItemDraft = z.infer<typeof TrackableItemDraftSchema>
+
+export function validateTrackableItemDraft(data: unknown): TrackableItemDraft {
 	return TrackableItemDraftSchema.parse(data)
 }
 
@@ -16,7 +27,7 @@ export function validateTrackableItemDraft(
  */
 export function validateTrackableItemDraftSafe(data: unknown): {
 	success: boolean
-	data?: z.infer<typeof TrackableItemDraftSchema>
+	data?: TrackableItemDraft
 	error?: z.ZodError
 } {
 	const result = TrackableItemDraftSchema.safeParse(data)

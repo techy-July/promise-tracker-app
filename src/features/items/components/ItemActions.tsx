@@ -2,7 +2,11 @@
 
 import { useState, useTransition } from 'react'
 import { Check, Trash2, Calendar } from 'lucide-react'
-import { markItemDone, deleteItemOptimized, updateItemDueDate } from '@/lib/actions/items'
+import {
+	markItemDone,
+	deleteItemOptimized,
+	updateItemDueDate,
+} from '@/features/items/controllers/item.controller'
 import type { Database } from '@/lib/database.types'
 
 type TrackableItem = Database['public']['Tables']['trackable_items']['Row']
@@ -15,7 +19,7 @@ interface ItemActionsProps {
 export function ItemActions({ item, onActionComplete }: ItemActionsProps) {
 	const [isPending, startTransition] = useTransition()
 	const [showDatePicker, setShowDatePicker] = useState(false)
-	const [pendingAction, setPendingAction] = useState<string | null>(null)
+	const [_pendingAction, setPendingAction] = useState<string | null>(null)
 	const [error, setError] = useState('')
 	const [optimisticStatus, setOptimisticStatus] = useState<string | null>(null)
 

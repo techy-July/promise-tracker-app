@@ -1,7 +1,11 @@
 'use server'
 
 import { createTypedServerClient } from '@/lib/supabase-typed-server'
-import type { TrackableItem, TrackableItemUpdate } from '../models/item.model'
+import type { Database } from '@/lib/database.types'
+
+type TrackableItem = Database['public']['Tables']['trackable_items']['Row']
+type TrackableItemInsert = Database['public']['Tables']['trackable_items']['Insert']
+type TrackableItemUpdate = Database['public']['Tables']['trackable_items']['Update']
 
 /**
  * Item Service - handles all database queries for trackable items
@@ -10,7 +14,7 @@ import type { TrackableItem, TrackableItemUpdate } from '../models/item.model'
 
 export async function createItemInDatabase(
 	userId: string,
-	item: Omit<TrackableItem, 'id' | 'user_id' | 'created_at' | 'updated_at'>
+	item: TrackableItemInsert
 ): Promise<TrackableItem> {
 	const supabase = await createTypedServerClient()
 
@@ -69,10 +73,7 @@ export async function updateItemInDatabase(
 
 	const { data, error } = await supabase
 		.from('trackable_items')
-		.update({
-			...updates,
-			updated_at: new Date().toISOString(),
-		})
+		.update(updates)
 		.eq('user_id', userId)
 		.eq('id', itemId)
 		.select()
@@ -130,12 +131,18 @@ export async function getOverdueItems(userId: string): Promise<TrackableItem[]> 
 export async function getAwaitingReplyItems(userId: string): Promise<TrackableItem[]> {
 	const supabase = await createTypedServerClient()
 
+	// Query join with reply_tracking table to find items awaiting replies
 	const { data, error } = await supabase
 		.from('trackable_items')
-		.select('*')
+		.select(
+			`
+      *,
+      reply_tracking:reply_tracking(awaited_reply)
+    `
+		)
 		.eq('user_id', userId)
-		.eq('awaited_reply', true)
 		.eq('status', 'pending')
+		.eq('reply_tracking.awaited_reply', true)
 		.order('created_at', { ascending: false })
 
 	if (error) throw new Error(`Failed to fetch awaiting-reply items: ${error.message}`)

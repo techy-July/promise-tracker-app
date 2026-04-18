@@ -1,6 +1,6 @@
 'use client'
 
-import { ItemActions } from './ItemActions'
+import { ItemActions } from '@/features/items/components/ItemActions'
 import { formatDate, isOverdue } from '@/lib/item-helpers'
 import type { Database } from '@/lib/database.types'
 

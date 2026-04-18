@@ -1,21 +1,19 @@
-import { z } from 'zod'
-
 /**
- * Scan Log - tracks bulk email scanning progress
+ * Scan Log - future table for tracking bulk email scanning progress
+ * NOTE: This table does not currently exist in the database schema
+ * Will be created when implementing the Gmail bulk scan feature
  */
-export const ScanLogSchema = z.object({
-	id: z.string(),
-	user_id: z.string(),
-	status: z.enum(['pending', 'running', 'completed', 'failed']),
-	total_emails: z.number(),
-	processed: z.number(),
-	skipped: z.number(),
-	error_message: z.string().nullable(),
-	created_at: z.string(),
-	completed_at: z.string().nullable(),
-})
-
-export type ScanLog = z.infer<typeof ScanLogSchema>
+export interface ScanLog {
+	id: string
+	user_id: string
+	status: 'pending' | 'running' | 'completed' | 'failed'
+	total_emails: number
+	processed: number
+	skipped: number
+	error_message: string | null
+	created_at: string
+	completed_at: string | null
+}
 
 /**
  * Scan log create payload

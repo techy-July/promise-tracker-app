@@ -1,26 +1,18 @@
-import { z } from 'zod'
+import type { Database } from '@/lib/database.types'
 
 /**
- * Category - user-defined category for grouping items
+ * Category types - directly from Supabase schema
  */
-export const CategorySchema = z.object({
-	id: z.string(),
-	user_id: z.string(),
-	name: z.string(),
-	keywords: z.array(z.string()).optional(),
-	color: z.string().optional(),
-	created_at: z.string(),
-	updated_at: z.string(),
-})
-
-export type Category = z.infer<typeof CategorySchema>
+export type Category = Database['public']['Tables']['categories']['Row']
+export type CategoryInsert = Database['public']['Tables']['categories']['Insert']
+export type CategoryUpdate = Database['public']['Tables']['categories']['Update']
 
 /**
- * Category create payload (omits id, user_id, timestamps)
+ * Category create payload - with defaults
  */
-export type CategoryCreate = Omit<Category, 'id' | 'user_id' | 'created_at' | 'updated_at'>
+export type CategoryCreate = Omit<CategoryInsert, 'user_id'>
 
 /**
  * Category update payload
  */
-export type CategoryUpdate = Partial<CategoryCreate>
+export type CategoryUpdatePayload = Partial<Omit<CategoryUpdate, 'user_id' | 'id'>>

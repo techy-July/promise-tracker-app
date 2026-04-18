@@ -6,7 +6,7 @@ import type { Session } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase-client'
-import { TimeoutMessageWithSuspense } from '@/components/TimeoutMessage'
+import { TimeoutMessageWithSuspense } from '@/components/ui/TimeoutMessage'
 
 export default function LogIn() {
 	const router = useRouter()

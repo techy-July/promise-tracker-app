@@ -1,9 +1,9 @@
 'use server'
 
-import { getUserItems } from '@/lib/actions/items'
-import { getCategories } from '@/lib/actions/categories'
-import { AddItemModal } from '@/components/AddItemModal'
-import { ItemRow } from '@/components/ItemRow'
+import { getItemsController as getUserItems } from '@/features/items/controllers/item.controller'
+import { getCategoriesController as getCategories } from '@/features/categories/controllers/category.controller'
+import { AddItemModal } from '@/features/items/components/AddItemModal'
+import { ItemRow } from '@/features/items/components/ItemRow'
 import type { Database } from '@/lib/database.types'
 
 type TrackableItem = Database['public']['Tables']['trackable_items']['Row']

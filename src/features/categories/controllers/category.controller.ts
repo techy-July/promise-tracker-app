@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createTypedServerClient } from '@/lib/supabase-typed-server'
 import { validateCategoryCreate } from '../validators/category.validator'
 import * as categoryService from '../services/category.service'
-import type { Category, CategoryCreate, CategoryUpdate } from '../models/category.model'
+import type { Category, CategoryUpdate } from '../models/category.model'
 
 /**
  * Category Controller - orchestrates validators, services, and revalidation
@@ -139,4 +139,66 @@ export async function getCategoryByIdController(categoryId: string): Promise<{
 		const error = err instanceof Error ? err.message : 'Unknown error'
 		return { success: false, data: null, error }
 	}
+}
+
+/**
+ * Convenience wrapper: Alias for getCategoriesController
+ * Used by legacy components
+ */
+export async function getCategories(): Promise<{
+	success: boolean
+	data: Category[] | null
+	error: string | null
+}> {
+	return getCategoriesController()
+}
+
+/**
+ * Convenience wrapper: Creates a category from individual parameters
+ * Used by CategoriesPage
+ */
+export async function createCategory(
+	name: string,
+	colorHex: string,
+	keywords?: string[]
+): Promise<{
+	success: boolean
+	data: Category | null
+	error: string | null
+}> {
+	return createCategoryController({
+		name,
+		color_hex: colorHex,
+		keywords,
+	})
+}
+
+/**
+ * Convenience wrapper: Updates a category from individual parameters
+ * Used by CategoriesPage
+ */
+export async function updateCategory(
+	id: string,
+	updates: { name?: string; color_hex?: string; keywords?: string[] }
+): Promise<{
+	success: boolean
+	data: Category | null
+	error: string | null
+}> {
+	return updateCategoryController(id, {
+		name: updates.name,
+		color_hex: updates.color_hex,
+		keywords: updates.keywords,
+	})
+}
+
+/**
+ * Convenience wrapper: Alias for deleteCategoryController
+ * Used by CategoriesPage
+ */
+export async function deleteCategory(id: string): Promise<{
+	success: boolean
+	error: string | null
+}> {
+	return deleteCategoryController(id)
 }

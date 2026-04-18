@@ -4,7 +4,7 @@ import { CheckCircle2, Clock, Inbox, Menu, MessageCircle, Settings, Tag, X } fro
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import LogOutButton from './LogOutButton'
+import LogOutButton from '@/components/ui/LogOutButton'
 
 interface NavItem {
 	label: string

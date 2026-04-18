@@ -7,9 +7,11 @@ import {
 	createCategory,
 	updateCategory,
 	deleteCategory,
-} from '@/lib/actions/categories'
-import Button from '@/components/Button'
-import LoadingSpinner from '@/components/LoadingSpinner'
+} from '@/features/categories/controllers/category.controller'
+import Button from '@/components/ui/Button'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import { Modal } from '@/components/ui/Modal'
+import { FormItem, Label, Input, FormError } from '@/components/ui/FormItem'
 
 type Category = {
 	id: string
@@ -293,93 +295,86 @@ function CategoryModal({
 	}
 
 	return (
-		<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-			<div className="bg-white rounded-lg max-w-md w-full mx-4 p-6">
-				<h2 className="text-xl font-bold text-gray-900 mb-4">
-					{category ? 'Edit Category' : 'Add Category'}
-				</h2>
+		<Modal
+			isOpen={true}
+			onClose={onClose}
+			title={category ? 'Edit Category' : 'Add Category'}
+			maxWidth="md"
+		>
+			<form onSubmit={handleSubmit} className="space-y-4">
+				{/* Error */}
+				{error && <FormError message={error} />}
 
-				<form onSubmit={handleSubmit} className="space-y-4">
-					{/* Name */}
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+				{/* Name */}
+				<FormItem>
+					<Label htmlFor="category-name" required>
+						Name
+					</Label>
+					<Input
+						type="text"
+						value={name}
+						onChange={(e) => setName(e.target.value)}
+						placeholder="e.g., Work, Personal, Urgent"
+						disabled={isPending}
+					/>
+				</FormItem>
+
+				{/* Color */}
+				<FormItem>
+					<Label htmlFor="category-color">Color</Label>
+					<div className="flex gap-3 items-center">
 						<input
+							type="color"
+							value={colorHex}
+							onChange={(e) => setColorHex(e.target.value)}
+							className="w-12 h-10 border border-gray-300 rounded-lg cursor-pointer"
+							disabled={isPending}
+						/>
+						<Input
 							type="text"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-							placeholder="e.g., Work, Personal, Urgent"
-							className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+							value={colorHex}
+							onChange={(e) => setColorHex(e.target.value)}
+							placeholder="#000000"
+							className="flex-1 font-mono text-sm"
 							disabled={isPending}
 						/>
 					</div>
+				</FormItem>
 
-					{/* Color */}
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
-						<div className="flex gap-2 items-center">
-							<input
-								type="color"
-								value={colorHex}
-								onChange={(e) => setColorHex(e.target.value)}
-								className="w-12 h-10 border border-gray-300 rounded-lg cursor-pointer"
-								disabled={isPending}
-							/>
-							<input
-								type="text"
-								value={colorHex}
-								onChange={(e) => setColorHex(e.target.value)}
-								placeholder="#000000"
-								className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-								disabled={isPending}
-							/>
-						</div>
-					</div>
+				{/* Keywords */}
+				<FormItem>
+					<Label htmlFor="category-keywords">Keywords</Label>
+					<Input
+						type="text"
+						value={keywords}
+						onChange={(e) => setKeywords(e.target.value)}
+						placeholder="e.g., work, deadline, important"
+						disabled={isPending}
+					/>
+					<p className="text-xs text-gray-500 mt-1">
+						Comma-separated keywords used to auto-categorize items
+					</p>
+				</FormItem>
 
-					{/* Keywords */}
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">
-							Keywords (comma-separated)
-						</label>
-						<input
-							type="text"
-							value={keywords}
-							onChange={(e) => setKeywords(e.target.value)}
-							placeholder="e.g., work, deadline, important"
-							className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-							disabled={isPending}
-						/>
-						<p className="mt-1 text-xs text-gray-500">
-							Used to auto-categorize items when they contain these keywords
-						</p>
-					</div>
-
-					{/* Error */}
-					{error && (
-						<div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
-							{error}
-						</div>
-					)}
-
-					{/* Buttons */}
-					<div className="flex gap-2 pt-4">
-						<button
-							type="button"
-							onClick={onClose}
-							disabled={isPending}
-							className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-						>
-							Cancel
-						</button>
-						<button
-							type="submit"
-							disabled={isPending}
-							className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-						>
-							{isPending ? 'Saving...' : category ? 'Update' : 'Create'}
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
+				{/* Buttons */}
+				<div className="flex gap-2 pt-2">
+					<button
+						type="button"
+						onClick={onClose}
+						disabled={isPending}
+						className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors font-medium"
+					>
+						Cancel
+					</button>
+					<button
+						type="submit"
+						disabled={isPending}
+						className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
+					>
+						{isPending ? 'Saving...' : category ? 'Update' : 'Create'}
+					</button>
+				</div>
+			</form>
+		</Modal>
 	)
 }

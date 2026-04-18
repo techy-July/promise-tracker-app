@@ -4,7 +4,7 @@ import type { User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import Sidebar from '@/components/Sidebar'
+import Sidebar from '@/components/layout/Sidebar'
 import { createClient } from '@/lib/supabase-client'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

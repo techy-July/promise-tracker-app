@@ -1,22 +1,13 @@
-import { z } from 'zod'
+import type { Database } from '@/lib/database.types'
 
 /**
- * Reminder - scheduled notification for an item
+ * Reminder types - directly from Supabase schema
  */
-export const ReminderSchema = z.object({
-	id: z.string(),
-	user_id: z.string(),
-	item_id: z.string(),
-	scheduled_for: z.string().describe('ISO 8601'),
-	sent_at: z.string().nullable().describe('ISO 8601 or null'),
-	channel: z.enum(['email', 'slack']),
-	status: z.enum(['pending', 'sent', 'failed']),
-	created_at: z.string(),
-})
-
-export type Reminder = z.infer<typeof ReminderSchema>
+export type Reminder = Database['public']['Tables']['reminders']['Row']
+export type ReminderInsert = Database['public']['Tables']['reminders']['Insert']
+export type ReminderUpdate = Database['public']['Tables']['reminders']['Update']
 
 /**
  * Reminder create payload
  */
-export type ReminderCreate = Omit<Reminder, 'id' | 'created_at' | 'sent_at'>
+export type ReminderCreate = Omit<ReminderInsert, 'id' | 'created_at'>
