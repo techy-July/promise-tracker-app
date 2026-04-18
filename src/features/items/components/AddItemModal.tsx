@@ -21,7 +21,7 @@ export function AddItemModal({ categories, onSuccess }: AddItemModalProps) {
 	// Form state
 	const [title, setTitle] = useState('')
 	const [dueDate, setDueDate] = useState('')
-	const [priority, setPriority] = useState('1')
+	const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('medium')
 	const [categoryId, setCategoryId] = useState('')
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -39,7 +39,7 @@ export function AddItemModal({ categories, onSuccess }: AddItemModalProps) {
 				const result = await createItemAndRefresh({
 					title: title.trim(),
 					due_date: dueDate || null,
-					priority: Number.parseInt(priority, 10),
+					priority,
 					category_id: categoryId || null,
 					status: 'pending',
 				} as any)
@@ -66,7 +66,7 @@ export function AddItemModal({ categories, onSuccess }: AddItemModalProps) {
 	const resetForm = () => {
 		setTitle('')
 		setDueDate('')
-		setPriority('1')
+		setPriority('medium')
 		setCategoryId('')
 		setError('')
 		setSuccess(false)
@@ -150,13 +150,13 @@ export function AddItemModal({ categories, onSuccess }: AddItemModalProps) {
 						</label>
 						<select
 							value={priority}
-							onChange={(e) => setPriority(e.target.value)}
+							onChange={(e) => setPriority(e.target.value as 'high' | 'medium' | 'low')}
 							className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
 							disabled={isPending}
 						>
-							<option value="1">High</option>
-							<option value="2">Medium</option>
-							<option value="3">Low</option>
+							<option value="high">High</option>
+							<option value="medium">Medium</option>
+							<option value="low">Low</option>
 						</select>
 					</div>
 
