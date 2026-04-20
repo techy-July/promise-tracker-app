@@ -71,16 +71,6 @@ export async function updateSession(request: NextRequest) {
 		}
 	}
 
-	// Update last activity timestamp for authenticated users
-	if (user) {
-		supabaseResponse.cookies.set('last_activity', now.toString(), {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: 'lax',
-			maxAge: SESSION_TIMEOUT / 1000, // Convert ms to seconds
-		})
-	}
-
 	// Protect /dashboard route from unauthorized access
 	const pathname = request.nextUrl.pathname
 	if (pathname.startsWith('/dashboard') && !user) {
