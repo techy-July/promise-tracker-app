@@ -1,6 +1,21 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase-server'
 
-export default function Home() {
+export const dynamic = 'force-dynamic'
+
+export default async function Home() {
+	// Check if user is already authenticated
+	const supabase = await createClient()
+	const {
+		data: { session },
+	} = await supabase.auth.getSession()
+
+	// If user has a valid session, redirect to dashboard
+	if (session?.user) {
+		redirect('/dashboard')
+	}
+
 	return (
 		<div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
 			<nav className="absolute top-0 right-0 p-6">
