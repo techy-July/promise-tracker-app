@@ -64,7 +64,7 @@ export default function LogIn() {
 					appearance={{ theme: ThemeSupa }}
 					theme="dark"
 					providers={['google']}
-					redirectTo={`${typeof window !== 'undefined' ? window.location.origin : ''}/callback`}
+					redirectTo={`${typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SUPABASE_URL}/callback`}
 				/>
 			</div>
 		</div>

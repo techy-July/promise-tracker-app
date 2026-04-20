@@ -1,5 +1,3 @@
-'use server'
-
 import { getItemsController as getUserItems } from '@/features/items/controllers/item.controller'
 import { getCategoriesController as getCategories } from '@/features/categories/controllers/category.controller'
 import { AddItemModal } from '@/features/items/components/AddItemModal'
