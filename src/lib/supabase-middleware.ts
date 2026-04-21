@@ -16,28 +16,31 @@ const SESSION_TIMEOUT = 30 * 60 * 1000
  * 4. Enforce session inactivity timeout
  */
 export async function updateSession(request: NextRequest) {
+	const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+	const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+	if (!supabaseUrl || !supabaseAnonKey) {
+		throw new Error('Missing Supabase environment variables.')
+	}
+
 	// Create a response object to potentially update cookies
 	const supabaseResponse = NextResponse.next({
 		request,
 	})
 
 	// Create Supabase client that can read request cookies and write response cookies
-	const supabase = createServerClient(
-		process.env.NEXT_PUBLIC_SUPABASE_URL!,
-		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-		{
-			cookies: {
-				getAll() {
-					return request.cookies.getAll()
-				},
-				setAll(cookiesToSet: { name: any; value: any; options: any }[]) {
-					cookiesToSet.forEach(({ name, value, options }) =>
-						supabaseResponse.cookies.set(name, value, options)
-					)
-				},
+	const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+		cookies: {
+			getAll() {
+				return request.cookies.getAll()
 			},
-		}
-	)
+			setAll(cookiesToSet: { name: any; value: any; options: any }[]) {
+				cookiesToSet.forEach(({ name, value, options }) =>
+					supabaseResponse.cookies.set(name, value, options)
+				)
+			},
+		},
+	})
 
 	// getUser():
 	// 1. Reads the current access token from cookies
