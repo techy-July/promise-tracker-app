@@ -1,27 +1,20 @@
 /**
  * Spam Filter Prompt
- * Instructs Claude to identify spam/unwanted emails
+ * Instructs LLM to identify spam/unwanted emails
  */
 
-export const SPAM_FILTER_PROMPT = `You are an email spam classifier.
+export const SPAM_FILTER_PROMPT = {
+	system: 'You are a spam detection expert. Respond with JSON only.',
+	user: (subject: string, from: string, bodyPreview: string) => `Analyze this email for spam:
 
-Analyze the following email and determine if it should be filtered as spam or unwanted.
+Subject: ${subject}
+From: ${from}
+Preview: ${bodyPreview}
 
-Email Subject: {subject}
-From: {from}
-Body:
-{body}
-
-Consider:
-- Marketing emails
-- Newsletters (if user hasn't indicated interest)
-- Known spam patterns
-- Suspicious links or requests
-
-Respond with JSON:
+Respond with ONLY a JSON object (no markdown):
 {
-  "isSpam": boolean,
+  "isLegitimate": boolean,
+  "confidence": number (0-1),
   "reason": string
+}`,
 }
-
-Only respond with valid JSON, no other text.`

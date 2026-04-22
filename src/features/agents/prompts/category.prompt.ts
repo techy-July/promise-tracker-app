@@ -1,25 +1,24 @@
 /**
  * Category Assignment Prompt
- * Instructs Claude to assign items to user categories
+ * Instructs LLM to categorize and assign priority to items
  */
 
-export const CATEGORY_PROMPT = `You are helping organize actionable items into user-defined categories.
+export const CATEGORY_PROMPT = {
+	system: 'You are a categorization expert for productivity items. Respond with valid JSON only.',
+	user: (
+		itemTitles: string[]
+	) => `Categorize these items for a productivity tracker - one category per item:
 
-Available categories:
-{categories}
+Items:
+${itemTitles.map((t, i) => `${i + 1}. ${t}`).join('\n')}
 
-For each item, determine the best matching category or null if none fit.
-
-Items to categorize:
-{items}
-
-Respond with JSON array matching input order:
+Respond with ONLY a JSON array, one category object per item (no markdown, no extra text):
 [
   {
-    "itemTitle": "string",
-    "categoryId": "string | null",
-    "confidence": number (0.0-1.0)
+    "category": "work|personal|urgent|follow-up|other",
+    "priority": 1
   }
 ]
 
-Only respond with valid JSON, no other text.`
+Return exactly ${itemTitles.length} objects in the array, matching item order.`,
+}

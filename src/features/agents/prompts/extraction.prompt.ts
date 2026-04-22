@@ -1,33 +1,49 @@
 /**
  * Extraction Prompt
- * Instructs Claude to extract actionable items from email
+ * Instructs LLM to extract actionable items from email
  */
 
-export const EXTRACTION_PROMPT = `You are an expert at identifying actionable items in emails.
+// Helper: Get today's date for prompts
+function getTodayForPrompt(): string {
+	const today = new Date()
+	return today.toISOString().split('T')[0]
+}
 
-Analyze the following email and extract all actionable items (tasks, deadlines, commitments, questions requiring response).
+export const EXTRACTION_PROMPT = {
+	system:
+		'You are an expert at extracting actionable items from emails. Consolidate related items into single tasks. Respond with JSON only.',
+	user: (subject: string, from: string, body: string) => {
+		const today = getTodayForPrompt()
+		return `Extract actionable items, tasks, deadlines, or commitments from this email. IMPORTANT: Consolidate related items - if the same task is mentioned multiple times with different details, merge them into ONE item with all details combined.
 
-Email Subject: {subject}
-From: {from}
+Today's date: ${today}
+
+Subject: ${subject}
+From: ${from}
 Body:
-{body}
+${body}
 
-For each actionable item, identify:
-- Clear title/action
-- Due date (if mentioned)
-- Priority (high/medium/low based on urgency markers)
-- Confidence (0.0-1.0 how certain you are this is actionable)
+For due dates, if relative (e.g., "by Friday", "next week", "in 3 days"):
+- Calculate the actual date from today (${today})
+- Convert to YYYY-MM-DD format
+- If no due date mentioned, use null
 
-Respond with JSON array:
+Respond with ONLY a JSON array (no markdown code blocks), empty array if none found:
 [
   {
-    "title": "string",
-    "description": "string or null",
-    "dueDate": "ISO 8601 or null",
-    "priority": "high" | "medium" | "low",
-    "confidence": number (0.0-1.0)
+    "title": "concise task title",
+    "description": "detailed context and any additional info",
+    "due_date": "2026-04-25 or null",
+    "priority": "high|medium|low",
+    "confidence": 0.8
   }
 ]
 
-Return empty array if no actionable items found.
-Only respond with valid JSON, no other text.`
+Rules:
+1. Merge duplicate/related tasks - one task per action item
+2. Extract actual due dates from text (convert "by Friday" to 2026-04-25)
+3. Only include items with confidence > 0.5
+4. Title should be 5-10 words max
+5. Include ALL relevant info in description`
+	},
+}

@@ -1,51 +1,21 @@
+import { randomUUID } from 'crypto'
+import { handleProcessEmail } from '@/features/agents/controllers/process-email.controller'
 import { type NextRequest, NextResponse } from 'next/server'
-import { orchestrator } from '@/features/agents/orchestrator'
-import type { EmailPayload } from '@/features/agents/models/email-payload.model'
-import { createTypedServerClient } from '@/lib/supabase-typed-server'
+import type { ProcessEmailResponse } from '@/lib/api/types'
 
 /**
  * POST /api/agents/process
- * Manual trigger for email processing via paste-to-extract UI
- * Accepts EmailPayload and runs through orchestrator
+ * Processes email and extracts actionable items
  *
- * Used by:
- * - Web UI paste-to-extract form
- * - Extension manual forwarding
+ * Required header: x-user-id
+ * Request body: EmailPayloadRequest
+ * Response: ProcessEmailResponse
  */
 
-export async function POST(request: NextRequest) {
-	try {
-		// Authenticate user
-		const supabase = await createTypedServerClient()
-		const {
-			data: { user },
-			error: userError,
-		} = await supabase.auth.getUser()
+export async function POST(request: NextRequest): Promise<NextResponse<ProcessEmailResponse>> {
+	const requestId = randomUUID()
 
-		if (userError || !user) {
-			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-		}
+	const { response, status } = await handleProcessEmail(request, requestId)
 
-		// Parse request body
-		const emailPayload: EmailPayload = await request.json()
-
-		// Validate email payload
-		if (!emailPayload.id || !emailPayload.from || !emailPayload.body) {
-			return NextResponse.json({ success: false, error: 'Invalid email payload' }, { status: 400 })
-		}
-
-		// Run through orchestrator
-		const result = await orchestrator(emailPayload)
-
-		// Return result (even if skipped, it's a valid response)
-		return NextResponse.json({
-			success: result.success,
-			data: result.data,
-			skipped: result.skipped,
-			reason: result.reason,
-		})
-	} catch (error) {
-		const message = error instanceof Error ? error.message : 'Unknown error'
-		return NextResponse.json({ success: false, error: message }, { status: 500 })
-	}
+	return NextResponse.json(response, { status })
 }
