@@ -1,5 +1,5 @@
 import { validateEmailPayload } from '../validators/email-payload.validator'
-import { ProcessEmailService } from '../services/process-email.service'
+import { processEmail } from '../services/process-email.service'
 import type { EmailPayloadRequest, ProcessEmailResponse } from '@/lib/api/types'
 import type { NextRequest } from 'next/server'
 import { Log } from 'debug-next'
@@ -78,7 +78,7 @@ export async function handleProcessEmail(
 
 		// Step 4: Call service
 		logVerbose(`[${requestId}] Step 4: Processing email...`)
-		const result = await ProcessEmailService.processEmail(emailPayload, userId)
+		const result = await processEmail(emailPayload, userId)
 
 		if (result.success) {
 			logVerbose(`[${requestId}] ✅ Email processed successfully`)
